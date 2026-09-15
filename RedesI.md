@@ -5,6 +5,7 @@
 - [Clase 2](#clase-2)
 - [Clase 3](#clase-3)
 - [Clase 4](#clase-4)
+- [Clase 5](#clase-5)
 ---
 
 <a id="clase-2"></a>
@@ -1024,3 +1025,476 @@ $$
 $$
 
 > **Nota para el parcial:** el apunte del profesor ubica celular, microondas y satélite dentro de “infrarrojo cercano”. Técnicamente, las comunicaciones celulares se encuentran principalmente en UHF/SHF, aproximadamente entre $300\,MHz$ y $30\,GHz$.
+
+---
+
+
+<a id="clase-5"></a>
+# Clase 5
+
+## Índice de la Clase 5
+
+- [1. Banda base y códigos de línea](#1-banda-base-y-codigos-de-linea)
+- [2. Criterios que debe cumplir un código de línea](#2-criterios-que-debe-cumplir-un-codigo-de-linea)
+- [3. Clasificación de los códigos de línea](#3-clasificacion-de-los-codigos-de-linea)
+- [4. Códigos más importantes](#4-codigos-mas-importantes)
+- [5. HDB3 y B8ZS](#5-hdb3-y-b8zs)
+- [6. Teoría de la información y Shannon](#6-teoria-de-la-informacion-y-shannon)
+
+---
+
+<a id="1-banda-base-y-codigos-de-linea"></a>
+## 1. Banda base y códigos de línea
+
+### 1.1 ¿Qué es banda base?
+
+Se llama banda base a la señal digital original, tal como sale del codificador o del equipo emisor, sin ser llevada a una frecuencia portadora ni sometida a un proceso de modulación.
+
+- No se “monta” sobre una onda portadora.
+- Se transmite directamente por el medio físico o por la línea de enlace.
+- Es la señal que se genera en el nivel digital antes de cualquier adaptación de canal.
+
+En otras palabras, si una computadora o un sistema digital genera un flujo binario, la banda base es ese flujo antes de ser modulado para radio, fibra u otros medios.
+
+### 1.2 ¿Qué es un código de línea?
+
+Un código de línea es la forma en que se representan los bits 0 y 1 mediante niveles de tensión o corriente en una línea física.
+
+Su objetivo es adaptar la secuencia binaria al canal para que pueda viajar de forma segura y reutilizable. Un código de línea no solo “escribe” bits, sino que también condiciona:
+
+- la presencia o ausencia de componente continua,
+- la capacidad de sincronizar el reloj,
+- la detección de fallas de línea,
+- el ancho de banda que requiere la señal.
+
+---
+
+<a id="2-criterios-que-debe-cumplir-un-codigo-de-linea"></a>
+## 2. Criterios que debe cumplir un código de línea
+
+Un código de línea ideal debe cumplir, como mínimo, tres condiciones fundamentales:
+
+### 2.1 Eliminar la componente continua (DC)
+
+La componente continua no puede pasar por algunos elementos del sistema, como transformadores o acoplos capacitivos.
+
+Además, una DC no lleva información útil; es energía desperdiciada. Por eso, un buen código evita que la señal quede en 0V o en un nivel constante durante mucho tiempo.
+
+### 2.2 Permitir detección de presencia de línea
+
+El receptor debe saber si la línea sigue viva aunque el flujo de datos sea largo o esté formado por muchos ceros.
+
+Si la línea se queda en 0V durante mucho tiempo, el receptor puede confundirlo con:
+
+- un cable cortado,
+- una pérdida de señal,
+- o un largo bloque de ceros que no tiene transición.
+
+### 2.3 Permitir sincronismo
+
+El receptor debe poder recuperar el reloj $T_b$ a partir de las transiciones de la señal. Si no hay cambios suficientes, no puede saber dónde termina un bit y empieza el siguiente.
+
+Por eso, los códigos de línea suelen buscar que haya muchas transiciones con una frecuencia útil para sincronizar el reloj.
+
+> Regla práctica: un código es mejor cuando, además de representar bits, deja “marcas” temporales en la señal.
+
+---
+
+<a id="3-clasificacion-de-los-codigos-de-linea"></a>
+## 3. Clasificación de los códigos de línea
+
+### 3.1 Según la polaridad
+
+- **Unipolar:** usa dos niveles, por ejemplo $0V$ y $+V$
+  - Ejemplo: $0 
+ightarrow 0V$, $1 
+ightarrow +V$
+  - Tiene mucha componente DC.
+
+- **Polar:** usa dos niveles opuestos, por ejemplo $+V$ y $-V$
+  - Ejemplo: $0 
+ightarrow -V$, $1 
+ightarrow +V$
+  - Balancea mejor la DC si hay igual cantidad de 1 y 0.
+
+- **Bipolar:** usa tres niveles, por ejemplo $+V$, $0V$, $-V$
+  - Ejemplo: AMI
+  - Tiene mejor comportamiento respecto a la DC y a la detección de errores.
+
+### 3.2 Según el ancho de pulso
+
+- **NRZ (Non Return to Zero):** el pulso ocupa todo el intervalo del bit $T_b$
+  - Ventaja: poco ancho de banda
+  - Desventaja: si llega una racha larga de igual bit, hay pocas transiciones y se pierde el sincronismo
+
+- **RZ (Return to Zero):** el pulso vuelve a cero antes de terminar el bit
+  - Ventaja: más transiciones, mejor sincronismo
+  - Desventaja: requiere más ancho de banda
+
+- **Bifase:** hay transición obligatoria dentro del bit
+  - Mejora el sincronismo
+  - Generalmente exige más ancho de banda
+
+---
+
+<a id="4-codigos-mas-importantes"></a>
+## 4. Códigos más importantes
+
+### 4.1 Unipolar NRZ
+
+- $1 = +V$
+- $0 = 0V$
+- Pulso de duración $T_b$
+
+Ventajas:
+- Simplemente implementable.
+
+Desventajas:
+- Tiene gran componente continua.
+- No permite sincronismo fiable con muchas repeticiones del mismo bit.
+- No detecta bien la presencia de línea.
+
+### 4.2 Polar NRZ
+
+- $1 = +V$
+- $0 = -V$
+- El pulso dura todo el bit.
+
+Ventajas:
+- Mejor que el unipolar.
+- Si hay igual cantidad de 1 y 0, la componente DC se compensa.
+
+Desventajas:
+- En una racha larga de 1 o 0 no hay transición, por lo que el sincronismo se degrada.
+
+### 4.3 Bipolar AMI (Alternate Mark Inversion)
+
+Regla:
+
+- $0 = 0V$
+- $1 = +V$ o $-V$ alternando, según la secuencia
+
+Ejemplo:
+
+$$ 1\ 1\ 1\ 1 \rightarrow +V, -V, +V, -V$$
+
+Ventajas:
+- Elimina la DC en promedio.
+- Es simple y muy usado.
+
+Desventajas:
+- Si aparecen muchos ceros seguidos, la línea queda a 0V durante un tiempo largo.
+- Se pierde sincronismo.
+- No se detecta presencia de línea correctamente.
+
+Por eso aparecen técnicas de sustitución como HDB3 y B8ZS.
+
+### 4.4 Manchester
+
+Este es uno de los códigos más importantes y se usa en Ethernet.
+
+Regla:
+
+- En cada bit hay una transición obligatoria en el centro del intervalo.
+- Si el bit es 1, la transición es de nivel alto a bajo.
+- Si el bit es 0, la transición es de bajo a alto.
+
+Formalmente:
+
+- $1$: transición de $+V$ a $-V$ a mitad de $T_b$
+- $0$: transición de $-V$ a $+V$ a mitad de $T_b$
+
+Ventajas:
+- No tiene DC.
+- Garantiza sincronismo en cada bit.
+- Detecta presencia de línea.
+
+Desventajas:
+- Requiere el doble de ancho de banda que NRZ.
+
+$$ BW \approx \frac{2}{T_b} $$
+
+### 4.5 Manchester diferencial
+
+Es una variante de Manchester en la que la información no depende de la polaridad absoluta, sino de la presencia o ausencia de transición al inicio del bit.
+
+Regla general:
+
+- $1$: solo hay transición al centro del bit.
+- $0$: hay transición al inicio y al centro del bit.
+
+Ventajas:
+- Tiene las mismas ventajas de Manchester.
+- Es más robusto frente a variaciones de polaridad y ruido.
+
+### 4.6 Miller (Delay Modulation)
+
+Es un código con buen equilibrio entre ancho de banda y sincronismo.
+
+Regla:
+
+- $1$: hay transición a mitad del intervalo $T_b$
+- $0$: no hay transición, salvo que el siguiente bit también sea 0; en ese caso hay transición al inicio del intervalo
+
+Ventajas:
+- No tiene DC.
+- Tiene sincronismo razonable.
+- Detecta presencia de línea.
+- Tiene mejor eficiencia espectral que Manchester.
+
+Desventajas:
+- No es tan simple de interpretar como Manchester.
+
+### 4.7 Resumen comparativo
+
+| Código | DC | Sincronismo | Detección de línea | Ancho de banda |
+| :--- | :---: | :---: | :---: | :--- |
+| Unipolar NRZ | No | No | No | Bajo |
+| Polar NRZ | Casi nula si está balanceado | No | Sí | Bajo |
+| AMI | Sí, se elimina | No con muchos ceros | No con muchos ceros | Bajo |
+| Manchester | Sí | Sí | Sí | Alto |
+| Miller | Sí | Sí | Sí | Medio-bajo |
+
+> Regla de memoria: si te preguntan “qué código cumple todo pero consume poco ancho de banda”, la respuesta es Miller. Si te preguntan “qué código cumple todo sin importar el ancho de banda”, la respuesta es Manchester.
+
+---
+
+<a id="5-hdb3-y-b8zs"></a>
+## 5. HDB3 y B8ZS
+
+### 5.1 ¿Por qué nacen?
+
+AMI es bueno porque elimina la DC, pero falla cuando aparecen muchas secuencias de ceros consecutivos. Entonces la línea queda en $0V$ durante un tiempo prolongado.
+
+Esto provoca:
+
+- pérdida de sincronismo,
+- imposibilidad de detectar si el cable sigue conectado,
+- y en general una mala recuperación del reloj.
+
+Para evitarlo se usan códigos de sustitución como:
+
+- **HDB3:** High Density Bipolar 3 Zeros
+- **B8ZS:** Bipolar with 8-Zero Substitution
+
+### 5.2 HDB3
+
+HDB3 reemplaza bloques de cuatro ceros consecutivos por una secuencia especial que mantiene la alternancia de polaridad y evita la continua.
+
+#### Regla general
+
+Cada vez que hay `0000`, se reemplaza según la cantidad de unos desde la última violación.
+
+- Si hay un número impar de unos desde la última violación, se reemplaza por `000V`
+- Si hay un número par de unos desde la última violación, se reemplaza por `B00V`
+
+Donde:
+
+- $V$ = violación de la regla AMI
+- $B$ = bit de relleno, con polaridad opuesta al último 1
+
+#### Objetivo
+
+Que las violaciones $V$ alternen siempre su polaridad, por ejemplo:
+
+$$ +, -, +, - 	ext{ ...}$$
+
+Esto mantiene la componente continua en cero.
+
+#### Ejemplo conceptual
+
+Si se tiene la secuencia:
+
+$$ 1\ 0000\ 1\ 0000$$
+
+y el último 1 transmitido era negativo, entonces se puede interpretar la línea como una alternancia en la que las violaciones se producen con polaridades alternadas y no se acumula DC.
+
+#### Receptor
+
+Cuando el receptor detecta una violación, sabe que no está frente a un dato normal sino a una secuencia especial de reemplazo.
+
+- `000V` se interpreta como un bloque de cuatro ceros.
+- `B00V` también se interpreta como cuatro ceros, eliminando el relleno.
+
+### 5.3 B8ZS
+
+B8ZS se usa principalmente en sistemas T1/DS1.
+
+Su idea es similar a HDB3, pero reemplaza bloques de ocho ceros por una secuencia con violaciones para evitar que la línea quede en reposo.
+
+Regla principal:
+
+- si aparecen 8 ceros seguidos, se insertan violaciones para evitar una línea “muerta”
+- la secuencia se construye de forma que la polaridad de las violaciones alterna.
+
+Se usa por la misma razón que HDB3: preservar la sincronización y evitar DC.
+
+### 5.4 Comparación rápida
+
+| Código | Problema que corrige | Idea principal |
+| :--- | :--- | :--- |
+| AMI | muchos 0 seguidos | alterna + y - |
+| HDB3 | AMI con rachas largas de ceros | reemplaza 0000 por secuencia especial |
+| B8ZS | 8 ceros seguidos | reemplaza bloques largos por violaciones |
+
+---
+
+<a id="6-teoria-de-la-informacion-y-shannon"></a>
+## 6. Teoría de la información y Shannon
+
+### 6.1 ¿Qué es la información según Shannon?
+
+La información no depende de “lo importante” que sea el mensaje, sino de su probabilidad. Cuanto menos probable es un suceso, más información transmite.
+
+La cantidad de información asociada a un símbolo $S$ es:
+
+$$ I(S) = \log_2\left(\frac{1}{P(S)}\right) = -\log_2 P(S) $$
+
+Si la probabilidad es alta, la información es baja. Si la probabilidad es muy baja, la información es alta.
+
+Ejemplos:
+
+- “Mañana va a salir el sol” tiene poca información.
+- “Habrá un eclipse total” tiene mucha información.
+
+Unidad:
+
+- bit si se usa logaritmo en base 2,
+- hartley si se usa base 10,
+- nat si se usa base $e$.
+
+### 6.2 Cambio de base de logaritmos
+
+Como en calculadora normalmente hay logaritmos en base 10 o naturales, se usa:
+
+$$ \log_2(x) = \frac{\log_{10}(x)}{\log_{10}(2)} = \frac{\ln(x)}{\ln(2)} $$
+
+Ejemplo clave:
+
+$$ \log_2(8) = 3 $$
+
+porque $2^3 = 8$.
+
+### 6.3 Probabilidad
+
+La probabilidad se calcula como:
+
+$$ P = \frac{\text{casos favorables}}{\text{casos posibles}} $$
+
+#### Ejemplos clásicos
+
+1. Moneda cara:
+   - $P(cara) = 1/2 = 0.5$
+   - $I = \log_2(2) = 1$ bit
+
+2. Dado sale un 6:
+   - $P(6) = 1/6$
+   - $I = \log_2(6) \approx 2.58$ bits
+
+3. Dos dados suman 7:
+   - $P = 6/36 = 1/6$
+   - $I \approx 2.58$ bits
+
+4. Dos dados suman 2:
+   - $P = 1/36$
+   - $I = \log_2(36) \approx 5.17$ bits
+
+### 6.4 Entropía
+
+La entropía de una fuente es la información promedio que aporta cada símbolo.
+
+$$ H = -\sum_i P_i \log_2(P_i) $$
+
+Donde:
+
+- $H$ = entropía,
+- $P_i$ = probabilidad del símbolo $i$,
+- la unidad es bits/símbolo.
+
+#### Ejemplo: moneda justa
+
+Si $P(cara)=P(seca)=0.5$:
+
+$$ H = -[0.5\log_2(0.5)+0.5\log_2(0.5)] = 1\ \text{bit/símbolo} $$
+
+Esto es la máxima entropía para dos símbolos equiprobables.
+
+#### Ejemplo: moneda cargada
+
+Si $P(cara)=0.9$ y $P(seca)=0.1$:
+
+$$ H = -[0.9\log_2(0.9)+0.1\log_2(0.1)] \approx 0.469\ \text{bits/símbolo} $$
+
+La entropía baja porque ya casi sabés qué va a salir.
+
+### 6.5 Tasa de información
+
+La tasa de información relaciona la entropía con la velocidad de aparición de los símbolos.
+
+$$ R = \frac{H}{\tau} = H \cdot V_m $$
+
+Donde:
+
+- $H$ = entropía [bits/símbolo]
+- $\tau$ = duración media del símbolo [s/símbolo]
+- $V_m = 1/\tau$ = velocidad de modulación [símbolos/s]
+- $R$ = tasa de información [bits/s]
+
+### 6.6 Teorema de Shannon para la capacidad del canal
+
+La capacidad máxima de un canal es:
+
+$$ C = B \cdot \log_2(1 + S/N) $$
+
+Donde:
+
+- $C$ = capacidad del canal [bits/s]
+- $B$ = ancho de banda [Hz]
+- $S/N$ = relación señal a ruido (en lineal, no en dB)
+
+#### Regla clave
+
+- Si $R < C$, el sistema puede diseñarse para operar sin errores.
+- Si $R > C$, el canal no alcanza para esa tasa de información; habrá errores.
+
+### 6.7 Ejercicio clásico de telégrafo
+
+Supongamos un telégrafo con dos símbolos:
+
+- punto: $P_1 = 0.4$, $t_1 = 0.1s$
+- raya: $P_2 = 0.6$, $t_2 = 0.3s$
+
+#### Entropía
+
+$$ H = -0.4\log_2(0.4)-0.6\log_2(0.6) \approx 0.97\ \text{bits/símbolo} $$
+
+#### Duración media
+
+$$ \tau = 0.4(0.1)+0.6(0.3)=0.22s $$
+
+#### Velocidad de modulación
+
+$$ V_m = \frac{1}{0.22} \approx 4.54\ \text{baudios} $$
+
+#### Tasa de información
+
+$$ R = \frac{H}{\tau} = \frac{0.97}{0.22} \approx 4.41\ \text{bits/s} $$
+
+Comparando con la capacidad del canal:
+
+- si $C = 10$ bits/s, entonces $R < C$ y hay margen;
+- si $C = 3$ bits/s, entonces $R > C$ y el canal no alcanza.
+
+### 6.8 Resumen final de Shannon
+
+- $H$ mide cuánta información aporta un símbolo en promedio.
+- $R$ mide cuánta información se transmite por segundo.
+- $C$ mide cuánto puede soportar el canal.
+- La condición fundamental es:
+
+$$ R < C $$
+
+Si $R$ supera a $C$, el sistema va a tener errores inevitables.
+
+---
+
