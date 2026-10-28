@@ -10,6 +10,7 @@
 - [Clase 7](#clase-7)
 - [Clase 8](#clase-8)
 - [Clase 9](#clase-9)
+- [Clase 10](#clase-10)
 ---
 
 <a id="clase-2"></a>
@@ -3109,3 +3110,4 @@ La **delta adaptativa** resuelve el compromiso de la delta común haciendo que e
 - Cuando la señal **varía lentamente**, el escalón **disminuye** hacia $A_{min}$, lo que reduce el ruido granular.
 
 De este modo se obtiene una mejor aproximación de la señal original con la misma cantidad de bits por muestra (un bit), a costa de un circuito algo más complejo que decide cómo cambiar el escalón.
+
