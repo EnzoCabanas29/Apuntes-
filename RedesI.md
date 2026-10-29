@@ -3111,3 +3111,411 @@ La **delta adaptativa** resuelve el compromiso de la delta común haciendo que e
 
 De este modo se obtiene una mejor aproximación de la señal original con la misma cantidad de bits por muestra (un bit), a costa de un circuito algo más complejo que decide cómo cambiar el escalón.
 
+---
+
+<a id="clase-11"></a>
+# Clase 11
+
+## Índice de la Clase 11
+
+- [1. Multiplexación y concentración](#c11-1)
+- [2. Técnicas de multiplexación](#c11-2)
+- [3. Multiplexación por división de frecuencia FDM](#c11-3)
+- [4. Jerarquía analógica de FDM](#c11-4)
+- [5. Multiplexación por división de longitud de onda WDM](#c11-5)
+- [6. Multiplexación por división de tiempo TDM](#c11-6)
+- [7. Entramado de bits y de caracteres](#c11-7)
+- [8. Esquema básico de multiplexación digital](#c11-8)
+- [9. Jerarquía digital plesiócrona PDH](#c11-9)
+- [10. Tramas E1 y T1](#c11-10)
+- [11. Trama E2](#c11-11)
+- [12. Jerarquía digital sincrónica SDH](#c11-12)
+- [13. Trama STM-N](#c11-13)
+- [14. Multiplexación por división de tiempo estadística STDM](#c11-14)
+- [15. Sincronización y reloj](#c11-15)
+- [16. Tipos de reloj y modos de operación](#c11-16)
+- [17. Protocolo de precisión de tiempo PTP](#c11-17)
+- [18. Ejemplo de cálculo con PTP](#c11-18)
+
+<a id="c11-1"></a>
+## 1. Multiplexación y concentración
+
+**Multiplexar** es transmitir varios canales de información independientes por un **único canal físico**, de modo que todos compartan el mismo medio. Así se evita tender un medio por cada comunicación, lo que abarata el sistema.
+
+- En el origen (**fuente**), el **multiplexor** (Mx) recibe los canales de entrada $C_1, C_2, \dots, C_n$ y los reúne en un **canal único**.
+- En el destino (**sumidero**), el equipo del otro extremo hace la operación inversa (demultiplexación) y entrega cada canal $C_1', C_2', \dots, C_n'$ a su destinatario.
+
+**Relación entre las capacidades.** Sea $C_c$ la capacidad del canal común y $C_i$ la capacidad de cada canal de entrada:
+
+$$\text{Multiplexor:} \quad C_c \ge \sum_{i=1}^{n} C_i$$
+
+$$\text{Concentrador:} \quad C_c \le \sum_{i=1}^{n} C_i$$
+
+- En el **multiplexor**, el canal común puede transportar a todos los canales a la vez, y a cada uno se le reserva su porción.
+- En el **concentrador**, el canal común es menor que la suma de las entradas, y se confía en que no todos los canales transmitan al mismo tiempo (se aprovechan los momentos en que algunos están inactivos). Es la idea que está detrás de la multiplexación estadística (ver [sección 14](#c11-14)).
+
+Ejemplo: 30 canales de 64 kbps suman $30 \times 64 = 1920$ kbps, que entran en un canal de 2048 kbps (E1), con el resto reservado para sincronismo y señalización.
+
+<a id="c11-2"></a>
+## 2. Técnicas de multiplexación
+
+| Técnica | Sigla | Qué se reparte entre los canales |
+|---|:-:|---|
+| Multiplexado por división de **frecuencia** | **FDM** (*Frequency Division Multiplexing*) | El **ancho de banda**: cada canal ocupa una banda de frecuencias propia |
+| Multiplexado por división de **tiempo** | **TDM** (*Time Division Multiplexing*) | El **tiempo**: cada canal usa el medio en intervalos asignados |
+| Multiplexado por división de tiempo **estadístico** | **STDM** (*Statistical Time Division Multiplexing*) | El tiempo, asignado **según la demanda** de cada canal |
+
+Además, la diapositiva incluye la **multiplexación por división de longitud de onda** (WDM), que es la equivalente a FDM en fibra óptica.
+
+Los sistemas de multiplexado por división de tiempo pueden utilizar técnicas **plesiócronas** o **sincrónicas** (ver las jerarquías PDH y SDH más adelante).
+
+<a id="c11-3"></a>
+## 3. Multiplexación por división de frecuencia FDM
+
+- El **ancho de banda total** del canal ($\Delta f$) se divide en **subcanales** (Subcanal 1, 2, ..., N), cada uno con su propio ancho de banda.
+- Entre un subcanal y otro se deja una **banda de protección** (banda de guarda), para que las señales vecinas no se interfieran.
+- Cada señal se **modula** sobre una portadora de frecuencia distinta (ver [Clase 10](#clase-10)) y las N señales se transmiten **al mismo tiempo**, ocupando cada una su porción del espectro.
+
+$$\Delta f \ge \sum_{i=1}^{N} \Delta f_i + \text{bandas de protección}$$
+
+- Es la técnica clásica de la radiodifusión y de la telefonía analógica.
+- Se aplica a señales **analógicas**.
+
+<a id="c11-4"></a>
+## 4. Jerarquía analógica de FDM
+
+En telefonía analógica, cada canal de voz ocupa **4 kHz** (0-4, 4-8, 8-12, ..., 44-48 kHz). Los canales se agrupan por niveles, y cada nivel agrupa varios del nivel anterior:
+
+| Grupo | Se forma con | Canales de voz | Ancho de banda | Banda ocupada |
+|---|---|:-:|:-:|---|
+| **Primario** | 12 canales de voz | 12 | 48 kHz | 60 - 108 kHz |
+| **Secundario** | 5 grupos primarios | 60 | 240 kHz | 312 - 552 kHz |
+| **Terciario** | 5 grupos secundarios | 300 | 1200 kHz | 312 - 1552 kHz |
+| **Cuaternario** | 3 grupos terciarios | 900 | 3716 kHz | 312 - 4028 kHz |
+| **Quinario** | 3 grupos cuaternarios | 2700 | 12 026 kHz | 312 - 12 338 kHz |
+
+Nota: en la diapositiva, el grupo primario figura con la leyenda "1 (12 cm)", que parece un error de tipeo por "12 canales".
+
+Con cada nivel se reutiliza la misma idea: la señal del nivel anterior se **traslada a otra banda de frecuencias** para que los grupos no se superpongan.
+
+<a id="c11-5"></a>
+## 5. Multiplexación por división de longitud de onda WDM
+
+Es el equivalente de la FDM para la **fibra óptica**. Cada canal de datos se transmite por la misma fibra con una **longitud de onda distinta** ($\lambda_1, \lambda_2, \lambda_3, \dots, \lambda_n$), que equivale a decir una frecuencia distinta, ya que $f = c/\lambda$.
+
+**Esquema de la clase**
+
+1. Cada señal de entrada ingresa a un **transponder**, que adapta la señal a su longitud de onda asignada.
+2. El **multiplexor** (Mux) combina todas las longitudes de onda en una sola fibra óptica.
+3. En el extremo opuesto, el **demultiplexor** (Demux) separa las longitudes de onda.
+4. Cada una pasa por su transponder y sale como el canal original.
+
+**Variantes** (la diapositiva solo las nombra):
+
+- **CWDM** (*Coarse WDM*): pocas longitudes de onda, muy separadas entre sí. Equipos más económicos.
+- **DWDM** (*Dense WDM*): muchas longitudes de onda muy próximas entre sí, que aprovechan mucho mejor la fibra.
+
+Las definiciones de CWDM y DWDM de arriba son ampliación de la explicación habitual. Revisalas contra tu material.
+
+Se aprovechan las ventanas de transmisión de la fibra vistas en la [Clase 8](#clase-8) (850, 1300 y 1550 nm), en especial la banda C de 1550 nm. Permite multiplicar la capacidad de un enlace sin tender más fibras.
+
+<a id="c11-6"></a>
+## 6. Multiplexación por división de tiempo TDM
+
+En TDM cada canal utiliza **todo el ancho de banda** del medio, pero solo durante un **intervalo de tiempo** ($\Delta t$) asignado. Los canales se turnan, uno detrás de otro, de forma periódica.
+
+**Ejemplo de funcionamiento** (según el esquema de la clase)
+
+- Cinco equipos terminales de datos (ETD) A, B, C, D y E envían información a un multiplexor TDM.
+- El multiplexor toma un dato de cada uno y arma una **trama** `a b c d e`.
+- La trama viaja por el medio de comunicación y, en el extremo receptor, otro multiplexor TDM **distribuye** cada dato a su destinatario (A, B, C, D, E).
+
+**Técnica de conmutación en el tiempo.** Cada señal $S_1(t), S_2(t), \dots$ pasa primero por un **filtro** y luego por un **conmutador**. Un conmutador en el transmisor y otro en el receptor giran **sincronizados**, de modo que el dato que entra por el canal $k$ sale por el canal $k$ del otro lado. Si los conmutadores se desincronizan, los datos llegan a destinos equivocados. Por eso la sincronización (ver [sección 15](#c11-15)) es clave en TDM.
+
+**Características**
+
+- Se aplica a señales **digitales** (o analógicas ya muestreadas, como en la modulación PAM / PCM de la [Clase 10](#clase-10)).
+- La capacidad del canal debe cubrir la suma de las capacidades de entrada, más los bits de sincronismo y señalización: $C_c \ge \sum C_i$.
+- Si un canal no tiene datos para enviar, su intervalo **se desperdicia** (esto motiva la STDM, [sección 14](#c11-14)).
+
+<a id="c11-7"></a>
+## 7. Entramado de bits y de caracteres
+
+La forma en que se intercalan los datos de los canales dentro de la trama define dos tipos de entramado:
+
+| Tipo | Qué se intercala | Orden de transmisión (4 canales A, B, C, D) |
+|---|---|---|
+| **Entramado de bits** | Un **bit** de cada canal | A1, B1, C1, D1, A2, B2, C2, D2, ... |
+| **Entramado de caracteres** | Un **carácter** (palabra de 8 bits) de cada canal | A1 A2 ... A8, B1 B2 ... B8, C1 ... C8, D1 ... D8, ... |
+
+- En el **entramado de bits** el multiplexor necesita poco almacenamiento, porque no espera a completar un carácter. En PDH, entre los niveles superiores a E1, la multiplexación se produce bit a bit (ver [sección 9](#c11-9)).
+- En el **entramado de caracteres** se agrupan los bits de cada carácter, de modo que el receptor entrega caracteres completos a cada destino.
+- En ambos casos la numeración indica el orden de los dígitos: el "1.er bit transmitido" es el primero que sale hacia la línea.
+
+<a id="c11-8"></a>
+## 8. Esquema básico de multiplexación digital
+
+La multiplexación digital se organiza en **niveles u órdenes** conectados en cascada:
+
+- Los multiplexores de **orden 1** reciben los canales de abonado (tributarios) y entregan una señal de mayor velocidad.
+- Esa señal se convierte en **una entrada** del multiplexor de **orden 2**, que a su vez reúne varias entradas en una señal de velocidad aún mayor.
+- Se repite el proceso en los órdenes 3, ..., $n$, hasta llegar al **medio** de transmisión.
+- En el extremo opuesto, se hace el camino inverso con multiplexores que separan cada nivel, hasta recuperar los canales originales.
+
+Cada orden multiplica la velocidad y reduce la cantidad de medios necesarios. Las jerarquías **PDH** (plesiócrona) y **SDH** (sincrónica) son dos implementaciones de este esquema.
+
+<a id="c11-9"></a>
+## 9. Jerarquía digital plesiócrona PDH
+
+**PDH** (*Plesiochronous Digital Hierarchy*) es la jerarquía TDM clásica. **Plesiócrono** significa "casi sincrónico": cada **tributario** viene de una red con su **propio reloj**, y al llegar al multiplexor TDM los relojes deben **sincronizarse** (de ahí los bits de justificación de la [sección 11](#c11-11)).
+
+- En PDH las señales son **eléctricas** y los medios físicos son **cables coaxiales** y **enlaces de radio**.
+- La multiplexación entre niveles se produce **bit a bit**.
+- Se parte de un canal de **64 kbps** (E0), que sale de digitalizar la voz con PCM: 8000 muestras/s × 8 bits (ver [Clase 10](#clase-10)).
+
+**Jerarquía europea (E)**
+
+| Orden | Nombre | Velocidad | Se forma con | Bits por trama | Duración de la trama | N.° de canales |
+|:-:|:-:|:-:|---|:-:|:-:|:-:|
+| 0 | E0 | 64 kbps | Un canal de voz | | | 1 |
+| 1 | E1 | 2,048 Mbps | 32 E0 | 256 | 125,00 µs | 30 |
+| 2 | E2 | 8,448 Mbps | 4 E1 (o 128 E0) | 848 | 100,38 µs | 120 |
+| 3 | E3 | 34,368 Mbps | 4 E2 (o 16 E1) | 1536 | 44,69 µs | 480 |
+| 4 | E4 | 139,264 Mbps | 4 E3 (o 64 E1) | 2904 | 20,85 µs | 1920 |
+| 5 | E5 | 564,992 Mbps | 4 E4 | 2688 | 4,70 µs | 7680 |
+
+- En E1, de los 32 intervalos, **30 son canales de voz**, y los otros 2 son de sincronismo y señalización (ver [sección 10](#c11-10)).
+- La velocidad de cada nivel es **algo mayor que la suma de las entradas**. Por ejemplo, $4 \times 2{,}048 = 8{,}192$ Mbps, pero E2 trabaja a 8,448 Mbps. La diferencia se usa para alineamiento de trama, control y justificación.
+- Para E5, la trama de 2688 bits a 564,992 Mbps daría unos 4,76 µs, y la diapositiva indica 4,70 µs. Es una diferencia pequeña y no queda claro si es redondeo o error de la tabla.
+
+**Otras jerarquías** (según el diagrama comparativo de la clase)
+
+| Jerarquía | Zona | Velocidades |
+|---|---|---|
+| PDH (E) | Mundial | 2048, 8448, 34 368 y 139 264 kbps |
+| T-Carrier | EE. UU. y Canadá | T1 1544, T1c 3152, T2 6312 y T3 44 736 kbps |
+| J | Japón | J1 1544, J1c 3152, J2 6312, J3 32 064 y J4 97 728 kbps |
+
+<a id="c11-10"></a>
+## 10. Tramas E1 y T1
+
+Ambas tramas duran **125 µs**, que es el período del muestreo de la voz (1/8000 s). En cada trama se transmite **una muestra de 8 bits por canal**.
+
+| Característica | **E1** (Europa) | **T1** (EE. UU.) |
+|---|---|---|
+| Duración de la trama | 125 µs | 125 µs |
+| Composición | 32 intervalos de 8 bits | 24 intervalos de 8 bits + 1 bit de entramado |
+| Bits por trama | 256 | 193 |
+| Velocidad | 2,048 Mb/s | 1,544 Mb/s |
+| Canales de información | 30 | 24 |
+| Velocidad de cada canal | 64 kb/s | 64 kb/s (56 kb/s en los canales con señalización) |
+
+**Trama E1**
+
+- **Intervalo 0**: alineamiento y sincronización de la trama.
+- **Intervalo 16**: canal de señalización.
+- **Intervalos 1 a 15 y 17 a 31**: canales de información, con 8 bits de datos (64 kb/s) cada uno.
+
+**Trama T1**
+
+- Un **bit de entramado** al comienzo de la trama.
+- **Intervalos 1 a 5, 7 a 11 y 13 a 24**: canales de información, con 8 bits de datos (64 kb/s).
+- En los **intervalos 6 y 12** (así figuran en la diapositiva) se usan solo **7 bits de información** (56 kb/s) y **1 bit de señalización**.
+
+Verificación de las velocidades:
+
+$$V_{E1} = \frac{256\ \text{bits}}{125\ \mu\text{s}} = 2{,}048\ \text{Mb/s} \qquad V_{T1} = \frac{24 \cdot 8 + 1}{125\ \mu\text{s}} = \frac{193\ \text{bits}}{125\ \mu\text{s}} = 1{,}544\ \text{Mb/s}$$
+
+<a id="c11-11"></a>
+## 11. Trama E2
+
+Para multiplexar cuatro E1 en un E2 hay que resolver que **los relojes de los tributarios no son exactamente iguales**. La solución es la **justificación** (*bit stuffing*):
+
+- Cada señal de 2 Mbps pasa por un **circuito de adaptación de bit rate**, que usa un **generador de reloj local**.
+- Si una señal es **más rápida** que el reloj local, o **más lenta**, el circuito **inserta bits de justificación** ($J$) para igualar las velocidades.
+- Luego, el **circuito de multiplexación** combina las señales ya adaptadas.
+
+**Estructura de la trama E2:** 848 bits en 100,38 µs, divididos en **cuatro segmentos de 212 bits**.
+
+| Segmento | Cabecera | Datos | Total |
+|:-:|---|:-:|:-:|
+| 1 | 10 bits (FAS) + 2 bits (A y N) | 200 | 212 |
+| 2 | 4 bits de control ($C_1$ a $C_4$) | 208 | 212 |
+| 3 | 4 bits de control ($C_1$ a $C_4$) | 208 | 212 |
+| 4 | 4 bits de control ($C_1$ a $C_4$) + 4 bits de justificación ($S_1$ a $S_4$) | 204 | 212 |
+
+- **FAS**: palabra de alineamiento de trama. En la diapositiva se muestra como `1111010000` seguida de los bits **A** y **N**.
+- **$C_1$ a $C_4$**: bits de control, que le indican al receptor si hubo justificación.
+- **$S_1$ a $S_4$**: bits de justificación, que son los lugares donde se pueden insertar los bits de relleno.
+- Los significados de **A** y **N** no se detallan en la diapositiva (habitualmente son un bit de alarma y un bit de uso nacional). Revisalo con tu material.
+
+<a id="c11-12"></a>
+## 12. Jerarquía digital sincrónica SDH
+
+**SDH** (*Synchronous Digital Hierarchy*) resuelve las limitaciones de PDH: toda la red trabaja **sincronizada con un reloj común**, por lo que ya no hace falta justificar bit a bit. Se transporta sobre **fibra óptica**.
+
+**Armado de la jerarquía** (según el diagrama de la clase)
+
+1. Los tributarios **PDH** (E1, E3, ...) se colocan en **contenedores virtuales** y forman tramas **STM-1** de 155,52 Mbps.
+2. Un **multiplexor 4:1** combina cuatro STM-1 en una **STM-4** de 622,08 Mbps.
+3. Otro multiplexor 4:1 combina cuatro STM-4 en una **STM-16** de 2488,32 Mbps.
+4. La señal pasa por un **codificador** (*scrambler*) y por un **conversor electro-óptico**, y sale hacia la fibra (en el esquema, como OC-48c).
+
+**Niveles de la jerarquía** ($N = 1, 4, 16, 64, 256$):
+
+| Denominación | Velocidad exacta | N | Número de canales | Velocidad simplificada |
+|---|:-:|:-:|:-:|:-:|
+| STM-1 | 155,520 Mbps | 1 | 1890 | 155 Mbps |
+| STM-4 | 622,080 Mbps | 4 | 7560 | 620 Mbps |
+| STM-16 | 2488,320 Mbps | 16 | 30 240 | 2,5 Gbps |
+| STM-64 | 9953,280 Mbps | 64 | 120 960 | 10 Gbps |
+| STM-256 | 39 813,120 Mbps | 256 | 483 840 | 40 Gbps |
+
+Cada nivel es $N$ veces la velocidad de STM-1:
+
+$$V_{STM\text{-}N} = N \cdot 155{,}520\ \text{Mbps}$$
+
+Nota: en la diapositiva, la columna N de STM-16 se lee como "26". Por la velocidad y la cantidad de canales (16 × 1890 = 30 240) debe ser **16**.
+
+**Contenedores virtuales** (según la diapositiva)
+
+| N.° | Contenedor | Velocidad de la multiplexación PDH |
+|:-:|:-:|:-:|
+| 1 | VC-11 | 1,544 Mbps |
+| 2 | VC-12 | 2,048 Mbps |
+| 3 | VC-2 | 6,048 Mbps |
+| 4 | VC-3 | 34,368 y 44,736 Mbps |
+| 5 | VC-4 | 139,264 Mbps |
+
+**Topología en anillo.** Los **ADM** (*Add-Drop Multiplexer*, multiplexores de inserción y extracción) forman un **anillo** de fibra, con una **fibra de trabajo** y una **fibra de protección**. Si se corta una fibra, el tráfico pasa por la de protección, y la red sigue funcionando. Los tributarios PDH entran y salen del anillo por los ADM.
+
+<a id="c11-13"></a>
+## 13. Trama STM-N
+
+Cada trama STM-N se divide en dos partes:
+
+- **SOH** (*Section Overhead*, sección de encabezado): información de control, alineamiento, supervisión y gestión.
+- **Payload**: carga total de la trama, que transporta los datos de los usuarios.
+
+**Estructura:** 9 filas × $270 \times N$ bytes.
+
+| Zona | Tamaño por fila |
+|---|:-:|
+| Sección de encabezado (SOH) | $9 \times N$ bytes |
+| Columna adicional (junto al encabezado) | $1 \times N$ bytes |
+| Capacidad neta de carga | $260 \times N$ bytes |
+| **Carga total de la trama** (payload) | $261 \times N$ bytes |
+| **Trama completa** | $270 \times N$ bytes |
+
+Verificación para STM-1 (cálculo propio, que usa la trama de 125 µs):
+
+$$V = \frac{9 \cdot 270 \cdot 8\ \text{bits}}{125\ \mu\text{s}} = \frac{19\,440\ \text{bits}}{125\ \mu\text{s}} = 155{,}520\ \text{Mbps}$$
+
+<a id="c11-14"></a>
+## 14. Multiplexación por división de tiempo estadística STDM
+
+En la TDM común, a cada canal le corresponde un intervalo fijo en cada trama, haya o no datos para enviar. Los intervalos vacíos son **tiempos muertos**, y desperdician capacidad.
+
+En la **STDM** el multiplexor estadístico **asigna los intervalos según la demanda**: solo se transmiten los canales que tienen datos en ese momento.
+
+- En el esquema de la clase hay cuatro canales (A, B, C, D) con intervalos vacíos (tiempos muertos).
+- Si fuera TDM común, esos intervalos viajarían vacíos. Con STDM, el multiplexor los salta y arma la secuencia de salida solo con datos (en la figura: C1, D1, A1, B1, D2, C2, A2, B2).
+- Como el orden ya no es fijo, **cada bloque debe ir identificado con su canal**, para que el multiplexor del otro extremo sepa a qué destino entregarlo (en la figura, cada bloque lleva su rótulo).
+
+**Ventajas y costos**
+
+- Se aprovecha mejor el canal: la capacidad del canal común puede ser **menor que la suma** de las capacidades de entrada. Es el caso del **concentrador** ($C_c \le \sum C_i$) de la [sección 1](#c11-1).
+- Si coinciden muchos canales con datos a la vez, el multiplexor necesita **memoria** para encolar y puede introducir **demoras**.
+- Los bloques llevan información extra de identificación, que aumenta un poco la carga.
+
+<a id="c11-15"></a>
+## 15. Sincronización y reloj
+
+**Sincronizar** es hacer que dos o más hechos, fenómenos, movimientos o mecanismos estén en **perfecta correspondencia temporal**, es decir, que ocurran en un momento predefinido de tiempo o lugar.
+
+En una red de comunicaciones, los **elementos de la red** tienen cada uno un **reloj local**, y todos deben seguir a un **reloj patrón** (de referencia). Sin sincronización, los multiplexores TDM pierden la alineación de las tramas y se producen errores (en PDH, los relojes casi iguales se compensan con justificación, y en SDH se sincroniza toda la red).
+
+**Alternativas de sincronización**
+
+| Tipo | Qué se logra |
+|---|---|
+| **Sincronización de frecuencia** | Los relojes tienen la **misma frecuencia** ($f_A = f_B$), pero sus pulsos no tienen por qué coincidir |
+| **Sincronización de fase** | Además de tener la misma frecuencia, los **pulsos coinciden** en el tiempo |
+| **Sincronización de tiempo** | Además de frecuencia y fase, los relojes marcan la **misma hora** (en la figura, ambos indican 01:00:00 y 01:00:10 en los mismos instantes) |
+
+Cada tipo incluye al anterior, y el de tiempo es el más exigente.
+
+<a id="c11-16"></a>
+## 16. Tipos de reloj y modos de operación
+
+**Reloj**: en redes, es un **generador de frecuencias** que se utiliza para sincronizar la red.
+
+**Tipos de reloj**
+
+- **Maestro** (*master*): entrega la referencia de tiempo.
+- **Esclavo** (*slave*): toma la referencia del maestro y ajusta su reloj local.
+
+**Modos de operación** (la diapositiva solo los nombra; las definiciones son ampliación)
+
+- **Enganchado** (*locked*): el reloj está sincronizado con una referencia externa.
+- **Retención** (*holdover*): se perdió la referencia, y el reloj mantiene la última frecuencia conocida.
+- **Libre** (*free-run*): el reloj trabaja solo, con su oscilador interno.
+
+**Elementos del esquema de la clase**
+
+- **PTP**: protocolo de precisión de tiempo (ver [sección 17](#c11-17)), con interfaces *Slave* y *Master*.
+- **SyncE**: Ethernet sincrónico, que distribuye la frecuencia por la capa física.
+- **EEC**: reloj del equipo, un oscilador que se engancha a la referencia.
+- **1pps**: salida de un pulso por segundo, para sincronización de tiempo.
+
+<a id="c11-17"></a>
+## 17. Protocolo de precisión de tiempo PTP
+
+Con PTP, un reloj **esclavo** calcula su desfase respecto de un **maestro** intercambiando mensajes con **marcas de tiempo** (*timestamps*).
+
+**Secuencia de mensajes**
+
+1. El maestro envía **SYNC** en el instante $t_1$ (de su reloj). El esclavo lo recibe en $t_2$ (de su reloj).
+2. El maestro envía **Follow_Up**, que contiene el valor de $t_1$.
+3. El esclavo envía **Delay_Req** en $t_3$ (de su reloj), y el maestro lo recibe en $t_4$ (de su reloj).
+4. El maestro responde con **Delay_Resp**, que contiene $t_4$.
+
+Con eso el esclavo conoce $t_1, t_2, t_3, t_4$.
+
+**Planteo.** Sea $\text{Delay}$ el retardo de propagación (se asume igual en ambos sentidos) y $\text{Offset} = T_S - T_M$ el desfase del esclavo respecto del maestro:
+
+$$t_2 = t_1 + \text{Offset} + \text{Delay} \quad \Rightarrow \quad t_2 - t_1 = \text{Offset} + \text{Delay}$$
+
+$$t_4 = t_3 - \text{Offset} + \text{Delay} \quad \Rightarrow \quad t_4 - t_3 = \text{Delay} - \text{Offset}$$
+
+Sumando y restando ambas ecuaciones:
+
+$$\text{Delay} = \frac{(t_2 - t_1) + (t_4 - t_3)}{2}$$
+
+$$\text{Offset} = \frac{(t_2 - t_1) - (t_4 - t_3)}{2}$$
+
+Con el **Offset** el esclavo corrige su reloj.
+
+<a id="c11-18"></a>
+## 18. Ejemplo de cálculo con PTP
+
+**Datos del ejemplo de la clase**
+
+| Marca | Valor |
+|:-:|:-:|
+| $t_1$ (el maestro envía SYNC) | 100 s |
+| $t_2$ (el esclavo recibe SYNC) | 82 s |
+| $t_3$ (el esclavo envía Delay_Req) | 86 s |
+| $t_4$ (el maestro recibe Delay_Req) | 108 s |
+
+**Desfase (Offset)**
+
+$$o = \frac{(t_2 - t_1) - (t_4 - t_3)}{2} = \frac{(82 - 100) - (108 - 86)}{2} = \frac{-18 - 22}{2} = \frac{-40}{2} = -20\ \text{s}$$
+
+El resultado es negativo: el reloj del esclavo está **20 s atrasado** respecto del maestro. El esclavo ajusta su reloj sumándole 20 s.
+
+**Retardo (Delay)** (cálculo propio, la diapositiva solo resuelve el desfase):
+
+$$\text{Delay} = \frac{(82 - 100) + (108 - 86)}{2} = \frac{-18 + 22}{2} = 2\ \text{s}$$
+
+Verificación: el SYNC sale a las 100 s del maestro y llega a las 82 s del esclavo, que equivalen a las 102 s del maestro. Entonces tardó 2 s, que coincide con el Delay.
