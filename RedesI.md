@@ -2,15 +2,16 @@
 
 ## Índice
 
-- [Clase 2](#clase-2)
-- [Clase 3](#clase-3)
-- [Clase 4](#clase-4)
-- [Clase 5](#clase-5)
-- [Clase 6](#clase-6)
-- [Clase 7](#clase-7)
-- [Clase 8](#clase-8)
-- [Clase 9](#clase-9)
-- [Clase 10](#clase-10)
+- [Clase 2: Electricidad, magnetismo y señales de comunicación](#clase-2)
+- [Clase 3: Series de Fourier y señales periódicas](#clase-3)
+- [Clase 4: Espectro de pulsos, enlaces y espectro electromagnético](#clase-4)
+- [Clase 5: Banda base, códigos de línea y teoría de la información](#clase-5)
+- [Clase 6: Ancho de banda, filtros y capacidad del canal](#clase-6)
+- [Clase 7: Errores, ruido y detección y corrección](#clase-7)
+- [Clase 8: Medios alámbricos y fibra óptica](#clase-8)
+- [Clase 9: Radiocomunicaciones, propagación y satélites](#clase-9)
+- [Clase 10: Modulación y digitalización de señales](#clase-10)
+- [Clase 11: Multiplexación y sincronización](#clase-11)
 ---
 
 <a id="clase-2"></a>
